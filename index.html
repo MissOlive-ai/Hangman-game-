@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing Hangman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .hangman-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .hangman-svg {
+            width: 200px;
+            height: 250px;
+            margin: 0 auto;
+        }
+
+        .word-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .word {
+            font-size: 3em;
+            font-weight: bold;
+            letter-spacing: 10px;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            margin-bottom: 30px;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .key {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .key:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .key:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .key:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .key.correct {
+            background: #10b981;
+        }
+
+        .key.incorrect {
+            background: #ef4444;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .modal p, .modal ul {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .modal ul {
+            margin-left: 20px;
+        }
+
+        .modal li {
+            margin-bottom: 10px;
+        }
+
+        .win-animation {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .win-animation.active {
+            display: block;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        @keyframes confettiFall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .result-message {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .result-message.win {
+            color: #10b981;
+        }
+
+        .result-message.lose {
+            color: #ef4444;
+        }
+
+        .share-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+            min-height: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .word {
+                font-size: 2em;
+                letter-spacing: 5px;
+            }
+
+            .keyboard {
+                grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+                gap: 5px;
+            }
+
+            .key {
+                padding: 10px;
+                font-size: 1em;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            animation: toastSlideIn 0.3s ease;
+        }
+
+        .toast.active {
+            display: block;
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☁️ Cloud Computing Hangman</h1>
+        <p class="subtitle">Guess the cloud computing term!</p>
+
+        <div class="game-info">
+            <div class="info-box">
+                <div>Attempts Left</div>
+                <div id="attemptsLeft">6</div>
+            </div>
+            <div class="info-box">
+                <div>Letters Used</div>
+                <div id="lettersUsed">0</div>
+            </div>
+        </div>
+
+        <div class="hangman-display">
+            <svg class="hangman-svg" viewBox="0 0 200 250">
+                <!-- Gallows -->
+                <line x1="10" y1="230" x2="150" y2="230" stroke="#333" stroke-width="4"/>
+                <line x1="50" y1="230" x2="50" y2="20" stroke="#333" stroke-width="4"/>
+                <line x1="50" y1="20" x2="130" y2="20" stroke="#333" stroke-width="4"/>
+                <line x1="130" y1="20" x2="130" y2="50" stroke="#333" stroke-width="4"/>
+                
+                <!-- Head -->
+                <circle id="head" cx="130" cy="70" r="20" stroke="#ef4444" stroke-width="4" fill="none" style="display: none;"/>
+                
+                <!-- Body -->
+                <line id="body" x1="130" y1="90" x2="130" y2="150" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Left Arm -->
+                <line id="leftArm" x1="130" y1="110" x2="100" y2="130" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Right Arm -->
+                <line id="rightArm" x1="130" y1="110" x2="160" y2="130" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Left Leg -->
+                <line id="leftLeg" x1="130" y1="150" x2="110" y2="190" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Right Leg -->
+                <line id="rightLeg" x1="130" y1="150" x2="150" y2="190" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+            </svg>
+        </div>
+
+        <div class="hint" id="hint"></div>
+
+        <div class="word-display">
+            <div class="word" id="wordDisplay">_ _ _ _ _</div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="share-section" id="shareSection" style="display: none;">
+            <button class="btn btn-primary" id="shareBtn">📋 Share Results</button>
+        </div>
+
+        <div class="keyboard" id="keyboard"></div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="howToPlayBtn">❓ How to Play</button>
+            <button class="btn btn-primary" id="newGameBtn">🔄 New Game</button>
+        </div>
+    </div>
+
+    <div class="modal" id="howToPlayModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+            <h2>How to Play</h2>
+            <p><strong>Objective:</strong> Guess the cloud computing term before running out of attempts!</p>
+            
+            <h3>Rules:</h3>
+            <ul>
+                <li>Click on letters to guess them</li>
+                <li>Each correct letter reveals its position(s) in the word</li>
+                <li>Each incorrect letter costs you one attempt</li>
+                <li>You have 6 attempts total before the hangman is complete</li>
+                <li>Win by revealing all letters before running out of attempts</li>
+            </ul>
+
+            <h3>Features:</h3>
+            <ul>
+                <li>🎯 Cloud computing themed words</li>
+                <li>💡 Hints for each word</li>
+                <li>🎉 Win animation celebration</li>
+                <li>📋 Share your results with friends</li>
+            </ul>
+
+            <h3>Tips:</h3>
+            <ul>
+                <li>Start with common vowels (A, E, I, O, U)</li>
+                <li>Look for common letter patterns</li>
+                <li>Use the hint to guide your guesses</li>
+                <li>Think about cloud computing terminology</li>
+            </ul>
+
+            <p><strong>Good luck and have fun!</strong></p>
+        </div>
+    </div>
+
+    <div class="win-animation" id="winAnimation"></div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Cloud computing word dictionary with hints
+        const wordDatabase = [
+            { word: "KUBERNETES", hint: "Container orchestration platform" },
+            { word: "DOCKER", hint: "Containerization platform" },
+            { word: "SERVERLESS", hint: "Architecture without server management" },
+            { word: "MICROSERVICES", hint: "Architectural style with small services" },
+            { word: "LAMBDA", hint: "AWS function-as-a-service" },
+            { word: "AZURE", hint: "Microsoft's cloud platform" },
+            { word: "TERRAFORM", hint: "Infrastructure as code tool" },
+            { word: "JENKINS", hint: "Continuous integration server" },
+            { word: "ANSIBLE", hint: "Configuration management tool" },
+            { word: "CLOUDWATCH", hint: "AWS monitoring service" },
+            { word: "ELASTICITY", hint: "Ability to scale resources" },
+            { word: "DEVOPS", hint: "Development and operations integration" },
+            { word: "CONTAINER", hint: "Isolated application environment" },
+            { word: "VIRTUALIZATION", hint: "Creating virtual versions of resources" },
+            { word: "SCALABILITY", hint: "Ability to handle growing workload" },
+            { word: "LOAD", hint: "Balancer distributes traffic" },
+            { word: "FIREWALL", hint: "Network security system" },
+            { word: "REPLICATION", hint: "Data duplication for availability" },
+            { word: "CICD", hint: "Continuous integration/deployment" },
+            { word: "API", hint: "Application Programming Interface" },
+            { word: "DATABASE", hint: "Organized data storage" },
+            { word: "STORAGE", hint: "Data persistence layer" },
+            { word: "COMPUTE", hint: "Processing power in the cloud" },
+            { word: "NETWORK", hint: "Interconnected systems" },
+            { word: "CLUSTER", hint: "Group of connected computers" },
+            { word: "AUTOSCALING", hint: "Automatic resource adjustment" },
+            { word: "DEPLOYMENT", hint: "Release of application" },
+            { word: "MONITORING", hint: "System observation and tracking" },
+            { word: "ENCRYPTION", hint: "Data security technique" },
+            { word: "BACKUP", hint: "Data copy for recovery" },
+            { word: "REDUNDANCY", hint: "Duplicate components for reliability" },
+            { word: "AVAILABILITY", hint: "System uptime measure" },
+            { word: "LATENCY", hint: "Time delay in data transfer" },
+            { word: "THROUGHPUT", hint: "Data processing rate" },
+            { word: "CACHING", hint: "Temporary data storage" },
+            { word: "PROXY", hint: "Intermediary server" },
+            { word: "GATEWAY", hint: "Entry/exit point for network" },
+            { word: "ORCHESTRATION", hint: "Automated configuration management" },
+            { word: "PIPELINE", hint: "Automated workflow stages" },
+            { word: "ARTIFACT", hint: "Build output file" },
+            { word: "REGISTRY", hint: "Container image repository" },
+            { word: "NAMESPACE", hint: "Resource isolation boundary" },
+            { word: "POD", hint: "Smallest Kubernetes unit" },
+            { word: "NODE", hint: "Worker machine in cluster" },
+            { word: "SERVICE", hint: "Stable network endpoint" },
+            { word: "INGRESS", hint: "External access to services" },
+            { word: "VOLUME", hint: "Persistent storage" },
+            { word: "CONFIGMAP", hint: "Configuration data storage" },
+            { word: "SECRET", hint: "Sensitive data storage" },
+            { word: "HELM", hint: "Kubernetes package manager" }
+        ];
+
+        // Game state
+        let currentWord = "";
+        let currentHint = "";
+        let guessedLetters = new Set();
+        let remainingAttempts = 6;
+        let gameOver = false;
+        let displayWord = [];
+
+        // DOM elements
+        const wordDisplay = document.getElementById("wordDisplay");
+        const keyboard = document.getElementById("keyboard");
+        const attemptsLeft = document.getElementById("attemptsLeft");
+        const lettersUsed = document.getElementById("lettersUsed");
+        const resultMessage = document.getElementById("resultMessage");
+        const shareSection = document.getElementById("shareSection");
+        const howToPlayModal = document.getElementById("howToPlayModal");
+        const winAnimation = document.getElementById("winAnimation");
+        const hintElement = document.getElementById("hint");
+        const toast = document.getElementById("toast");
+
+        // Hangman parts
+        const hangmanParts = [
+            document.getElementById("head"),
+            document.getElementById("body"),
+            document.getElementById("leftArm"),
+            document.getElementById("rightArm"),
+            document.getElementById("leftLeg"),
+            document.getElementById("rightLeg")
+        ];
+
+        // Initialize keyboard
+        function initKeyboard() {
+            keyboard.innerHTML = "";
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+            
+            letters.forEach(letter => {
+                const key = document.createElement("button");
+                key.className = "key";
+                key.textContent = letter;
+                key.addEventListener("click", () => guessLetter(letter, key));
+                keyboard.appendChild(key);
+            });
+        }
+
+        // Start new game
+        function startNewGame() {
+            // Reset game state
+            const randomIndex = Math.floor(Math.random() * wordDatabase.length);
+            const wordData = wordDatabase[randomIndex];
+            currentWord = wordData.word;
+            currentHint = wordData.hint;
+            guessedLetters = new Set();
+            remainingAttempts = 6;
+            gameOver = false;
+            displayWord = Array(currentWord.length).fill("_");
+
+            // Reset UI
+            updateWordDisplay();
+            updateGameInfo();
+            resultMessage.textContent = "";
+            resultMessage.className = "result-message";
+            shareSection.style.display = "none";
+            hintElement.textContent = `💡 Hint: ${currentHint}`;
+            
+            // Reset hangman
+            hangmanParts.forEach(part => part.style.display = "none");
+            
+            // Reset keyboard
+            initKeyboard();
+        }
+
+        // Update word display
+        function updateWordDisplay() {
+            wordDisplay.textContent = displayWord.join(" ");
+        }
+
+        // Update game info
+        function updateGameInfo() {
+            attemptsLeft.textContent = remainingAttempts;
+            lettersUsed.textContent = guessedLetters.size;
+        }
+
+        // Guess a letter
+        function guessLetter(letter, keyButton) {
+            if (gameOver || guessedLetters.has(letter)) {
+                return;
+            }
+
+            guessedLetters.add(letter);
+            keyButton.disabled = true;
+
+            if (currentWord.includes(letter)) {
+                // Correct guess
+                keyButton.classList.add("correct");
+                
+                // Reveal letter(s)
+                for (let i = 0; i < currentWord.length; i++) {
+                    if (currentWord[i] === letter) {
+                        displayWord[i] = letter;
+                    }
+                }
+                
+                updateWordDisplay();
+                
+                // Check for win
+                if (!displayWord.includes("_")) {
+                    winGame();
+                }
+            } else {
+                // Incorrect guess
+                keyButton.classList.add("incorrect");
+                remainingAttempts--;
+                
+                // Show hangman part
+                const partIndex = 6 - remainingAttempts - 1;
+                if (partIndex >= 0 && partIndex < hangmanParts.length) {
+                    hangmanParts[partIndex].style.display = "block";
+                }
+                
+                // Check for loss
+                if (remainingAttempts === 0) {
+                    loseGame();
+                }
+            }
+
+            updateGameInfo();
+        }
+
+        // Win game
+        function winGame() {
+            gameOver = true;
+            resultMessage.textContent = "🎉 Congratulations! You won!";
+            resultMessage.className = "result-message win";
+            shareSection.style.display = "block";
+            
+            // Trigger win animation
+            triggerWinAnimation();
+        }
+
+        // Lose game
+        function loseGame() {
+            gameOver = true;
+            resultMessage.textContent = `😞 Game Over! The word was: ${currentWord}`;
+            resultMessage.className = "result-message lose";
+            shareSection.style.display = "block";
+            
+            // Reveal the word
+            displayWord = currentWord.split("");
+            updateWordDisplay();
+        }
+
+        // Trigger win animation
+        function triggerWinAnimation() {
+            winAnimation.classList.add("active");
+            
+            const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"];
+            
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement("div");
+                    confetti.className = "confetti";
+                    confetti.style.left = Math.random() * 100 + "%";
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + "s";
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+                    winAnimation.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+            
+            setTimeout(() => {
+                winAnimation.classList.remove("active");
+            }, 4000);
+        }
+
+        // Share results
+        function shareResults() {
+            const gameUrl = window.location.href;
+            const isWin = gameOver && !displayWord.includes("_");
+            const emoji = isWin ? "🎉" : "😞";
+            const status = isWin ? "Won" : "Lost";
+            const attemptsUsed = 6 - remainingAttempts;
+            
+            let shareText = `☁️ Cloud Computing Hangman ${emoji}\n\n`;
+            shareText += `Status: ${status}\n`;
+            shareText += `Word: ${currentWord}\n`;
+            shareText += `Attempts used: ${attemptsUsed}/6\n`;
+            shareText += `Letters guessed: ${guessedLetters.size}\n\n`;
+            
+            // Visual representation
+            const attemptsEmoji = "❤️".repeat(remainingAttempts) + "🖤".repeat(6 - remainingAttempts);
+            shareText += `${attemptsEmoji}\n\n`;
+            shareText += `Play now: ${gameUrl}`;
+
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showToast("✅ Results copied to clipboard!");
+                }).catch(() => {
+                    fallbackCopy(shareText);
+                });
+            } else {
+                fallbackCopy(shareText);
+            }
+        }
+
+        // Fallback copy method
+        function fallbackCopy(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand("copy");
+                showToast("✅ Results copied to clipboard!");
+            } catch (err) {
+                showToast("❌ Failed to copy results");
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("active");
+            
+            setTimeout(() => {
+                toast.classList.remove("active");
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById("newGameBtn").addEventListener("click", startNewGame);
+        document.getElementById("shareBtn").addEventListener("click", shareResults);
+        document.getElementById("howToPlayBtn").addEventListener("click", () => {
+            howToPlayModal.classList.add("active");
+        });
+        document.getElementById("closeModalBtn").addEventListener("click", () => {
+            howToPlayModal.classList.remove("active");
+        });
+
+        // Close modal when clicking outside
+        howToPlayModal.addEventListener("click", (e) => {
+            if (e.target === howToPlayModal) {
+                howToPlayModal.classList.remove("active");
+            }
+        });
+
+        // Keyboard support
+        document.addEventListener("keydown", (e) => {
+            if (gameOver) return;
+            
+            const key = e.key.toUpperCase();
+            if (/^[A-Z]$/.test(key) && !guessedLetters.has(key)) {
+                const keyButton = Array.from(keyboard.children).find(btn => btn.textContent === key);
+                if (keyButton && !keyButton.disabled) {
+                    guessLetter(key, keyButton);
+                }
+            }
+        });
+
+        // Start the game
+        startNewGame();
+    </script>
+</body>
+</html>

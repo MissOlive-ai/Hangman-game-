@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing Hangman</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>☁️ Cloud Computing Hangman</h1>
+        <p class="subtitle">Guess the cloud computing term!</p>
+
+        <div class="game-info">
+            <div class="info-box">
+                <div>Attempts Left</div>
+                <div id="attemptsLeft">6</div>
+            </div>
+            <div class="info-box">
+                <div>Letters Used</div>
+                <div id="lettersUsed">0</div>
+            </div>
+        </div>
+
+        <div class="hangman-display">
+            <svg class="hangman-svg" viewBox="0 0 200 250">
+                <!-- Gallows -->
+                <line x1="10" y1="230" x2="150" y2="230" stroke="#333" stroke-width="4"/>
+                <line x1="50" y1="230" x2="50" y2="20" stroke="#333" stroke-width="4"/>
+                <line x1="50" y1="20" x2="130" y2="20" stroke="#333" stroke-width="4"/>
+                <line x1="130" y1="20" x2="130" y2="50" stroke="#333" stroke-width="4"/>
+                
+                <!-- Head -->
+                <circle id="head" cx="130" cy="70" r="20" stroke="#ef4444" stroke-width="4" fill="none" style="display: none;"/>
+                
+                <!-- Body -->
+                <line id="body" x1="130" y1="90" x2="130" y2="150" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Left Arm -->
+                <line id="leftArm" x1="130" y1="110" x2="100" y2="130" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Right Arm -->
+                <line id="rightArm" x1="130" y1="110" x2="160" y2="130" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Left Leg -->
+                <line id="leftLeg" x1="130" y1="150" x2="110" y2="190" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+                
+                <!-- Right Leg -->
+                <line id="rightLeg" x1="130" y1="150" x2="150" y2="190" stroke="#ef4444" stroke-width="4" style="display: none;"/>
+            </svg>
+        </div>
+
+        <div class="hint" id="hint"></div>
+
+        <div class="word-display">
+            <div class="word" id="wordDisplay">_ _ _ _ _</div>
+        </div>
+
+        <div class="result-message" id="resultMessage"></div>
+
+        <div class="share-section" id="shareSection" style="display: none;">
+            <button class="btn btn-primary" id="shareBtn">📋 Share Results</button>
+        </div>
+
+        <div class="keyboard" id="keyboard"></div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="howToPlayBtn">❓ How to Play</button>
+            <button class="btn btn-primary" id="newGameBtn">🔄 New Game</button>
+        </div>
+    </div>
+
+    <div class="modal" id="howToPlayModal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+            <h2>How to Play</h2>
+            <p><strong>Objective:</strong> Guess the cloud computing term before running out of attempts!</p>
+            
+            <h3>Rules:</h3>
+            <ul>
+                <li>Click on letters to guess them</li>
+                <li>Each correct letter reveals its position(s) in the word</li>
+                <li>Each incorrect letter costs you one attempt</li>
+                <li>You have 6 attempts total before the hangman is complete</li>
+                <li>Win by revealing all letters before running out of attempts</li>
+            </ul>
+
+            <h3>Features:</h3>
+            <ul>
+                <li>🎯 Cloud computing themed words</li>
+                <li>💡 Hints for each word</li>
+                <li>🎉 Win animation celebration</li>
+                <li>📋 Share your results with friends</li>
+            </ul>
+
+            <h3>Tips:</h3>
+            <ul>
+                <li>Start with common vowels (A, E, I, O, U)</li>
+                <li>Look for common letter patterns</li>
+                <li>Use the hint to guide your guesses</li>
+                <li>Think about cloud computing terminology</li>
+            </ul>
+
+            <p><strong>Good luck and have fun!</strong></p>
+        </div>
+    </div>
+
+    <div class="win-animation" id="winAnimation"></div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
