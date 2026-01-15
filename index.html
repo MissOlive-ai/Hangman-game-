@@ -482,7 +482,7 @@
             { word: "SCALABILITY", hint: "Ability to handle growing workload" },
             { word: "LOAD", hint: "Balancer distributes traffic" },
             { word: "FIREWALL", hint: "Network security system" },
-            { word: "KUBERNETES", hint: "K8s for short" },
+            { word: "REPLICATION", hint: "Data duplication for availability" },
             { word: "CICD", hint: "Continuous integration/deployment" },
             { word: "API", hint: "Application Programming Interface" },
             { word: "DATABASE", hint: "Organized data storage" },
@@ -696,8 +696,9 @@
         // Share results
         function shareResults() {
             const gameUrl = window.location.href;
-            const emoji = gameOver && !displayWord.includes("_") ? "🎉" : "😞";
-            const status = gameOver && !displayWord.includes("_") ? "Won" : "Lost";
+            const isWin = gameOver && !displayWord.includes("_");
+            const emoji = isWin ? "🎉" : "😞";
+            const status = isWin ? "Won" : "Lost";
             const attemptsUsed = 6 - remainingAttempts;
             
             let shareText = `☁️ Cloud Computing Hangman ${emoji}\n\n`;
