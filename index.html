@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Computing Hangman</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .how-to-play {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+
+        .how-to-play h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .how-to-play ul {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .how-to-play li {
+            margin-bottom: 8px;
+        }
+
+        .toggle-instructions {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .toggle-instructions:hover {
+            background: #5568d3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .hangman-drawing {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 3em;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-display {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 50px;
+            height: 60px;
+            border: 3px solid #667eea;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .letter-box.revealed {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(45px, 1fr));
+            gap: 8px;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .key {
+            padding: 15px 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .key:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .key:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .key.correct {
+            background: #28a745;
+        }
+
+        .key.wrong {
+            background: #dc3545;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .message.win {
+            color: #28a745;
+        }
+
+        .message.lose {
+            color: #dc3545;
+        }
+
+        /* Win Animation */
+        @keyframes confetti {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .win-animation .letter-box {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .share-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 1em;
+            word-break: break-all;
+        }
+
+        .hint {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .keyboard {
+                gap: 5px;
+            }
+
+            .key {
+                padding: 10px 5px;
+                font-size: 0.9em;
+            }
+
+            .letter-box {
+                width: 40px;
+                height: 50px;
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☁️ Cloud Computing Hangman ☁️</h1>
+        <p class="subtitle">Test your cloud computing knowledge!</p>
+
+        <button class="toggle-instructions" onclick="toggleInstructions()">📖 How to Play</button>
+        
+        <div id="instructions" class="how-to-play hidden">
+            <h2>How to Play:</h2>
+            <ul>
+                <li>🎯 Guess the cloud computing term by selecting letters</li>
+                <li>💡 You have 6 wrong guesses before the game ends</li>
+                <li>✅ Click on letter buttons or use your keyboard</li>
+                <li>🏆 Win by revealing all letters before running out of attempts</li>
+                <li>📋 Share your results using the share button after winning</li>
+                <li>🔄 Click "New Game" to start fresh with a new word</li>
+            </ul>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">
+                <span class="info-label">Wrong Guesses:</span>
+                <span class="info-value" id="wrong-count">0 / 6</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Letters Left:</span>
+                <span class="info-value" id="letters-left">0</span>
+            </div>
+        </div>
+
+        <div class="hangman-drawing" id="hangman-drawing">
+            😊
+        </div>
+
+        <div class="hint" id="hint"></div>
+
+        <div class="word-display" id="word-display"></div>
+
+        <div class="keyboard" id="keyboard"></div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="newGame()">🎮 New Game</button>
+            <button class="btn btn-secondary" id="share-btn" onclick="shareResults()" style="display: none;">📋 Share Results</button>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <!-- Modal for share results -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <h2>🎉 Great Job!</h2>
+            <p id="modal-message"></p>
+            <div class="share-result" id="share-text"></div>
+            <button class="btn btn-primary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+            <button class="btn btn-secondary" onclick="closeModal()">✖️ Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive cloud computing biased word dictionary
+        const WORDS = [
+            { word: 'KUBERNETES', hint: 'Container orchestration platform', category: 'Container Tech' },
+            { word: 'DOCKER', hint: 'Containerization platform', category: 'Container Tech' },
+            { word: 'TERRAFORM', hint: 'Infrastructure as Code tool', category: 'DevOps' },
+            { word: 'ANSIBLE', hint: 'Configuration management tool', category: 'DevOps' },
+            { word: 'JENKINS', hint: 'Continuous integration server', category: 'CI/CD' },
+            { word: 'SERVERLESS', hint: 'Event-driven computing model', category: 'Architecture' },
+            { word: 'MICROSERVICES', hint: 'Architectural style for distributed systems', category: 'Architecture' },
+            { word: 'LAMBDA', hint: 'AWS serverless compute service', category: 'AWS' },
+            { word: 'CLOUDFORMATION', hint: 'AWS Infrastructure as Code service', category: 'AWS' },
+            { word: 'ELASTICACHE', hint: 'AWS in-memory caching service', category: 'AWS' },
+            { word: 'DYNAMODB', hint: 'AWS NoSQL database service', category: 'AWS' },
+            { word: 'REDSHIFT', hint: 'AWS data warehouse service', category: 'AWS' },
+            { word: 'KINESIS', hint: 'AWS real-time data streaming', category: 'AWS' },
+            { word: 'CLOUDWATCH', hint: 'AWS monitoring and logging service', category: 'AWS' },
+            { word: 'AZURE', hint: 'Microsoft cloud platform', category: 'Cloud Providers' },
+            { word: 'KUBERNETES', hint: 'Container orchestration system', category: 'Container Tech' },
+            { word: 'PROMETHEUS', hint: 'Monitoring and alerting toolkit', category: 'Monitoring' },
+            { word: 'GRAFANA', hint: 'Analytics and monitoring platform', category: 'Monitoring' },
+            { word: 'ELASTICSEARCH', hint: 'Distributed search and analytics engine', category: 'Data' },
+            { word: 'KAFKA', hint: 'Distributed streaming platform', category: 'Data' },
+            { word: 'REDIS', hint: 'In-memory data structure store', category: 'Data' },
+            { word: 'POSTGRES', hint: 'Advanced relational database', category: 'Data' },
+            { word: 'MONGODB', hint: 'Document-oriented NoSQL database', category: 'Data' },
+            { word: 'NGINX', hint: 'Web server and reverse proxy', category: 'Infrastructure' },
+            { word: 'APACHE', hint: 'Popular web server software', category: 'Infrastructure' },
+            { word: 'LOADBALANCER', hint: 'Distributes network traffic', category: 'Infrastructure' },
+            { word: 'APIGATEWAY', hint: 'Manages API requests', category: 'Infrastructure' },
+            { word: 'VIRTUALIZATION', hint: 'Running multiple OS on one machine', category: 'Concepts' },
+            { word: 'CONTAINERIZATION', hint: 'OS-level virtualization', category: 'Concepts' },
+            { word: 'ORCHESTRATION', hint: 'Automated configuration and coordination', category: 'Concepts' },
+            { word: 'SCALABILITY', hint: 'Ability to handle growing workload', category: 'Concepts' },
+            { word: 'ELASTICITY', hint: 'Dynamic resource scaling', category: 'Concepts' },
+            { word: 'AVAILABILITY', hint: 'System uptime percentage', category: 'Concepts' },
+            { word: 'RELIABILITY', hint: 'System consistency and dependability', category: 'Concepts' },
+            { word: 'DURABILITY', hint: 'Data persistence guarantee', category: 'Concepts' },
+            { word: 'LATENCY', hint: 'Time delay in data transfer', category: 'Performance' },
+            { word: 'THROUGHPUT', hint: 'Amount of data processed per unit time', category: 'Performance' },
+            { word: 'CACHING', hint: 'Storing frequently accessed data', category: 'Performance' },
+            { word: 'SHARDING', hint: 'Database horizontal partitioning', category: 'Data' },
+            { word: 'REPLICATION', hint: 'Copying data across multiple nodes', category: 'Data' },
+            { word: 'ENCRYPTION', hint: 'Converting data to secure format', category: 'Security' },
+            { word: 'AUTHENTICATION', hint: 'Verifying user identity', category: 'Security' },
+            { word: 'AUTHORIZATION', hint: 'Granting access permissions', category: 'Security' },
+            { word: 'FIREWALL', hint: 'Network security system', category: 'Security' },
+            { word: 'VPNGATEWAỲ', hint: 'Secure network connection', category: 'Security' },
+            { word: 'CIDRBLOCK', hint: 'IP address range notation', category: 'Networking' },
+            { word: 'SUBNET', hint: 'Network segment', category: 'Networking' },
+            { word: 'GATEWAY', hint: 'Network access point', category: 'Networking' },
+            { word: 'ENDPOINT', hint: 'Connection point in network', category: 'Networking' },
+            { word: 'DEPLOYMENT', hint: 'Software release process', category: 'DevOps' },
+            { word: 'PIPELINE', hint: 'Automated workflow', category: 'CI/CD' },
+            { word: 'ARTIFACT', hint: 'Build output file', category: 'CI/CD' },
+            { word: 'REPOSITORY', hint: 'Code storage location', category: 'DevOps' },
+            { word: 'GITOPS', hint: 'Git-based infrastructure management', category: 'DevOps' },
+            { word: 'IMMUTABLE', hint: 'Cannot be changed after creation', category: 'Concepts' },
+            { word: 'STATELESS', hint: 'No stored session information', category: 'Architecture' },
+            { word: 'STATEFUL', hint: 'Maintains session information', category: 'Architecture' },
+            { word: 'MONOLITHIC', hint: 'Single-tiered software application', category: 'Architecture' },
+            { word: 'DISTRIBUTED', hint: 'Spread across multiple computers', category: 'Architecture' },
+            { word: 'EVENTDRIVEN', hint: 'Responds to events or messages', category: 'Architecture' },
+            { word: 'MESSAGEQUEUE', hint: 'Asynchronous communication buffer', category: 'Architecture' },
+            { word: 'PUBSUB', hint: 'Publish-subscribe messaging pattern', category: 'Architecture' },
+            { word: 'RESTAPI', hint: 'Web service architectural style', category: 'API' },
+            { word: 'GRAPHQL', hint: 'Query language for APIs', category: 'API' },
+            { word: 'GRPC', hint: 'High-performance RPC framework', category: 'API' },
+            { word: 'WEBHOOK', hint: 'HTTP callback notification', category: 'API' },
+            { word: 'CLOUDNATIVE', hint: 'Built for cloud environments', category: 'Concepts' },
+            { word: 'HYBRID', hint: 'Combined public and private cloud', category: 'Cloud Types' },
+            { word: 'MULTICLOUD', hint: 'Using multiple cloud providers', category: 'Cloud Types' },
+            { word: 'EDGE', hint: 'Computing near data source', category: 'Concepts' },
+            { word: 'CLOUDSTORAGE', hint: 'Online data storage service', category: 'Services' },
+            { word: 'OBJECTSTORAGE', hint: 'Stores data as objects', category: 'Storage' },
+            { word: 'BLOCKSTORAGE', hint: 'Stores data in fixed-size blocks', category: 'Storage' },
+            { word: 'SNAPSHOT', hint: 'Point-in-time data copy', category: 'Storage' },
+            { word: 'BACKUP', hint: 'Data copy for recovery', category: 'Storage' },
+            { word: 'DISASTER', hint: 'Catastrophic system failure', category: 'Operations' },
+            { word: 'RECOVERY', hint: 'Restoring system after failure', category: 'Operations' },
+            { word: 'FAILOVER', hint: 'Switching to backup system', category: 'Operations' },
+            { word: 'REDUNDANCY', hint: 'Duplicate components for reliability', category: 'Operations' },
+            { word: 'LOGGING', hint: 'Recording system events', category: 'Monitoring' },
+            { word: 'TRACING', hint: 'Tracking request flow', category: 'Monitoring' },
+            { word: 'METRICS', hint: 'System performance measurements', category: 'Monitoring' },
+            { word: 'ALERTING', hint: 'Automated notifications', category: 'Monitoring' },
+            { word: 'DASHBOARD', hint: 'Visual data display', category: 'Monitoring' },
+            { word: 'OBSERVABILITY', hint: 'Understanding system internal state', category: 'Monitoring' },
+            { word: 'TELEMETRY', hint: 'Automated data collection', category: 'Monitoring' },
+            { word: 'NAMESPACE', hint: 'Isolated resource group', category: 'Kubernetes' },
+            { word: 'INGRESS', hint: 'External access to services', category: 'Kubernetes' },
+            { word: 'CONFIGMAP', hint: 'Configuration data storage', category: 'Kubernetes' },
+            { word: 'SECRET', hint: 'Sensitive data storage', category: 'Kubernetes' },
+            { word: 'PERSISTENT', hint: 'Data that survives restarts', category: 'Storage' },
+            { word: 'EPHEMERAL', hint: 'Temporary and short-lived', category: 'Storage' },
+            { word: 'AUTOSCALING', hint: 'Automatic resource adjustment', category: 'Scaling' },
+            { word: 'HORIZONTAL', hint: 'Adding more instances', category: 'Scaling' },
+            { word: 'VERTICAL', hint: 'Increasing instance size', category: 'Scaling' },
+            { word: 'THROTTLING', hint: 'Limiting request rate', category: 'Performance' },
+            { word: 'RATELIMIT', hint: 'Maximum requests per time', category: 'Performance' },
+            { word: 'QUOTA', hint: 'Resource usage limit', category: 'Management' },
+            { word: 'BILLING', hint: 'Usage cost calculation', category: 'Management' },
+            { word: 'TAGGING', hint: 'Resource labeling for organization', category: 'Management' }
+        ];
+
+        let currentWord = '';
+        let currentHint = '';
+        let guessedLetters = new Set();
+        let wrongGuesses = 0;
+        const maxWrong = 6;
+        let gameOver = false;
+        let gameWon = false;
+
+        const hangmanStages = ['😊', '😐', '😟', '😰', '😵', '😱', '💀'];
+
+        // Initialize game
+        function initGame() {
+            createKeyboard();
+            newGame();
+        }
+
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            
+            letters.forEach(letter => {
+                const button = document.createElement('button');
+                button.className = 'key';
+                button.textContent = letter;
+                button.setAttribute('data-letter', letter);
+                button.onclick = () => guessLetter(letter);
+                keyboard.appendChild(button);
+            });
+        }
+
+        function newGame() {
+            // Reset game state
+            guessedLetters = new Set();
+            wrongGuesses = 0;
+            gameOver = false;
+            gameWon = false;
+
+            // Select random word
+            const wordData = WORDS[Math.floor(Math.random() * WORDS.length)];
+            currentWord = wordData.word.replace(/[^A-Z]/g, ''); // Remove special chars
+            currentHint = `💡 ${wordData.hint} (${wordData.category})`;
+
+            // Reset UI
+            document.getElementById('hint').textContent = currentHint;
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').className = 'message';
+            document.getElementById('share-btn').style.display = 'none';
+            document.getElementById('hangman-drawing').textContent = hangmanStages[0];
+            
+            // Reset keyboard
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                key.disabled = false;
+                key.className = 'key';
+            });
+
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            // Update word display
+            const wordDisplay = document.getElementById('word-display');
+            wordDisplay.innerHTML = '';
+            wordDisplay.className = gameWon ? 'word-display win-animation' : 'word-display';
+            
+            let lettersLeft = 0;
+            for (let letter of currentWord) {
+                const box = document.createElement('div');
+                box.className = 'letter-box';
+                if (guessedLetters.has(letter)) {
+                    box.textContent = letter;
+                    box.classList.add('revealed');
+                } else {
+                    box.textContent = '';
+                    lettersLeft++;
+                }
+                wordDisplay.appendChild(box);
+            }
+
+            // Update info
+            document.getElementById('wrong-count').textContent = `${wrongGuesses} / ${maxWrong}`;
+            document.getElementById('letters-left').textContent = lettersLeft;
+            document.getElementById('hangman-drawing').textContent = hangmanStages[wrongGuesses];
+        }
+
+        function guessLetter(letter) {
+            if (gameOver || guessedLetters.has(letter)) return;
+
+            guessedLetters.add(letter);
+
+            // Update button state
+            const button = document.querySelector(`[data-letter="${letter}"]`);
+            button.disabled = true;
+
+            if (currentWord.includes(letter)) {
+                button.classList.add('correct');
+            } else {
+                button.classList.add('wrong');
+                wrongGuesses++;
+            }
+
+            updateDisplay();
+            checkGameStatus();
+        }
+
+        function checkGameStatus() {
+            // Check if won
+            const allLettersGuessed = [...currentWord].every(letter => guessedLetters.has(letter));
+            
+            if (allLettersGuessed) {
+                gameOver = true;
+                gameWon = true;
+                document.getElementById('message').textContent = '🎉 Congratulations! You won!';
+                document.getElementById('message').className = 'message win';
+                document.getElementById('share-btn').style.display = 'inline-block';
+                createConfetti();
+                updateDisplay(); // Trigger animation
+            } else if (wrongGuesses >= maxWrong) {
+                gameOver = true;
+                document.getElementById('message').textContent = `💀 Game Over! The word was: ${currentWord}`;
+                document.getElementById('message').className = 'message lose';
+            }
+        }
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animation = `confetti ${2 + Math.random() * 2}s linear forwards`;
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 50);
+            }
+        }
+
+        function shareResults() {
+            const url = window.location.href;
+            const wrongEmoji = '❌';
+            const correctEmoji = '✅';
+            const attempts = wrongEmoji.repeat(wrongGuesses) + correctEmoji;
+            
+            const shareText = `☁️ Cloud Computing Hangman ☁️\n\nI guessed: ${currentWord}\nAttempts: ${attempts}\nScore: ${wrongGuesses}/${maxWrong} wrong\n\nPlay here: ${url}`;
+
+            document.getElementById('modal-message').textContent = `You solved "${currentWord}" with ${wrongGuesses} wrong guesses!`;
+            document.getElementById('share-text').textContent = shareText;
+            document.getElementById('share-modal').classList.add('active');
+
+            // Store for clipboard
+            window.shareTextContent = shareText;
+        }
+
+        function copyToClipboard() {
+            const text = window.shareTextContent || document.getElementById('share-text').textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    alert('Failed to copy to clipboard');
+                }
+                document.body.removeChild(textarea);
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('share-modal').classList.remove('active');
+        }
+
+        function toggleInstructions() {
+            const instructions = document.getElementById('instructions');
+            instructions.classList.toggle('hidden');
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            
+            const letter = e.key.toUpperCase();
+            if (letter.length === 1 && letter >= 'A' && letter <= 'Z') {
+                guessLetter(letter);
+            }
+        });
+
+        // Start game on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>
